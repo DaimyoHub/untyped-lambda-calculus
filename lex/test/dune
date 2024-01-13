@@ -1,8 +1,0 @@
-(test
- (name lex)
- (modules lex)
- (libraries lex))
-
-(env
- (dev
-  (flags (:standard -w -32) (:standard -w -26) (:standard -w -32))))

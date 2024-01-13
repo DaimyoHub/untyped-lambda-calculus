@@ -1,8 +1,0 @@
-(library
- (public_name lex)
- (name lex)
- (modules lex))
-
-(env
- (dev
-  (flags (:standard -w -32))))
