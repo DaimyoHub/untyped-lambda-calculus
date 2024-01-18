@@ -1,5 +1,5 @@
 let print_tokens tokens = 
-  let open Lex in
+  let open Lex.Token in
   List.iter (
     fun x -> match x with
       | Var _ -> print_endline "var"

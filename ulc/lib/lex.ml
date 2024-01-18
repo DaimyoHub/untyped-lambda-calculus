@@ -1,3 +1,6 @@
+module Token =
+struct
+
 type token =
     Var of char
   | Blk
@@ -7,47 +10,46 @@ type token =
   | Rpar
   | Unknown
 
+end
+
+
 module Recognize =
 struct
 
 let lbd = function
   | s :: l :: b :: d :: t -> 
     if s = '\\' && l = 'l' && b = 'b' && d = 'd' then
-      Some(Lbd, t)
+      Some(Token.Lbd, t)
     else None
   | _ -> None
 
 let var = function
   | c :: _ -> 
     let cd = Char.code c in
-    if 97 <= cd && cd <= 122 then Some(Var(c)) else None
+    if 97 <= cd && cd <= 122 then Some(Token.Var(c)) else None
   | _ -> None
 
 let token str = 
+  let open Token in
   match str with
   | [] -> Unknown, []
   | ' ' :: s -> Blk, s
   | '.' :: s -> Dot, s
   | '(' :: s -> Lpar, s
   | ')' :: s -> Rpar, s
-  | '\\' :: _ -> begin
-    let r = lbd str in
-      match r with 
-      | Some(Lbd, t) -> Lbd, t
-      | _ -> Unknown, []
-    end
-  | _ :: s -> begin
-    let r = var str in
-      match r with
-      | Some(Var(c)) -> Var(c), s
-      | _ -> Unknown, []
-    end
+  | '\\' :: _ ->
+      (function 
+       | Some(Lbd, t) -> Lbd, t
+       | _ -> Unknown, []
+      ) (lbd str)
+  | _ :: s ->
+      (function
+       | Some(Var(c)) -> Var(c), s
+       | _ -> Unknown, []
+      ) (var str)
 
 end
 
-
-module Lexer =
-struct
 
 let _string_to_char_list str =
   let len = String.length str in
@@ -67,11 +69,15 @@ let tokenize_string str =
 
 let rec remove_blanks_from_tokens = function
   | [] -> []
-  | Blk :: s -> remove_blanks_from_tokens s
+  | Token.Blk :: s -> remove_blanks_from_tokens s
   | x :: s -> x :: remove_blanks_from_tokens s
 
+let skip_dot = function
+  | Token.Dot :: s -> s
+  | s -> s
+
+let skip_rpar = function
+  | Token.Rpar :: s -> s
+  | s -> s
 
 let lex str = str |> tokenize_string |> remove_blanks_from_tokens
-
-
-end

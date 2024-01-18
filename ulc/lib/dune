@@ -1,2 +1,3 @@
 (library
- (name ulc))
+ (name ulc)
+ (modules lex par serial reduc))

@@ -1,4 +1,4 @@
-open Ulc
+(*open Ulc
 
 
 let () =
@@ -90,3 +90,4 @@ let () =
   print_endline
     (Printf.sprintf "lexer : \n\tstr_to_char : %s \n\ttokenize_str : %s \n\tremove_blanks : %s"
     s_str_to_char s_tokenize_str s_remove_blanks);
+*)
