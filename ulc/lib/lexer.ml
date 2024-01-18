@@ -1,4 +1,4 @@
-module Token =
+module Detail =
 struct
 
 type token =
@@ -10,48 +10,38 @@ type token =
   | Rpar
   | Unknown
 
-end
 
-
-module Recognize =
-struct
-
-let lbd = function
+let recongize_lbd = function
   | s :: l :: b :: d :: t -> 
     if s = '\\' && l = 'l' && b = 'b' && d = 'd' then
-      Some(Token.Lbd, t)
+      Some(Lbd, t)
     else None
   | _ -> None
 
-let var = function
+let recognize_var = function
   | c :: _ -> 
     let cd = Char.code c in
-    if 97 <= cd && cd <= 122 then Some(Token.Var(c)) else None
+    if 97 <= cd && cd <= 122 then Some(Var(c)) else None
   | _ -> None
 
-let token str = 
-  let open Token in
-  match str with
+let recognize_token = function
   | [] -> Unknown, []
   | ' ' :: s -> Blk, s
   | '.' :: s -> Dot, s
   | '(' :: s -> Lpar, s
   | ')' :: s -> Rpar, s
-  | '\\' :: _ ->
+  | '\\' :: s ->
       (function 
        | Some(Lbd, t) -> Lbd, t
        | _ -> Unknown, []
-      ) (lbd str)
-  | _ :: s ->
+      ) (recongize_lbd ('\\' :: s))
+  | x :: s ->
       (function
        | Some(Var(c)) -> Var(c), s
        | _ -> Unknown, []
-      ) (var str)
+      ) (recognize_var (x :: s))
 
-end
-
-
-let _string_to_char_list str =
+let string_to_char_list str =
   let len = String.length str in
   let rec convert i = 
     if i = len then [] else str.[i] :: convert (i + 1)
@@ -62,22 +52,25 @@ let tokenize_string str =
   let rec tokenize = function
     | [] -> []
     | x :: s ->
-        let tok, t = Recognize.token (x :: s) in
+        let tok, t = recognize_token (x :: s) in
           tok :: tokenize t
   in
-  _string_to_char_list str |> tokenize
+  string_to_char_list str |> tokenize
 
 let rec remove_blanks_from_tokens = function
   | [] -> []
-  | Token.Blk :: s -> remove_blanks_from_tokens s
+  | Blk :: s -> remove_blanks_from_tokens s
   | x :: s -> x :: remove_blanks_from_tokens s
 
 let skip_dot = function
-  | Token.Dot :: s -> s
+  | Dot :: s -> s
   | s -> s
 
 let skip_rpar = function
-  | Token.Rpar :: s -> s
+  | Rpar :: s -> s
   | s -> s
 
-let lex str = str |> tokenize_string |> remove_blanks_from_tokens
+end
+
+
+let lex str = str |> Detail.tokenize_string |> Detail.remove_blanks_from_tokens
